@@ -36,6 +36,7 @@ public class Config {
     final public static String MASTER_SIZE_MB = "master.container.size-mb";
     final public static String MASTER_NUM_SUPERVISORS = "master.initial-num-supervisors";
     final public static String MASTER_CONTAINER_PRIORITY = "master.container.priority";
+    public static final String EXECUTORS_PER_WORKER = "executors.per.worker";
     //# of milliseconds to wait for YARN report on Storm Master host/port
     final public static String YARN_REPORT_WAIT_MILLIS = "yarn.report.wait.millis";
     final public static String MASTER_HEARTBEAT_INTERVAL_MILLIS = "master.heartbeat.interval.millis";

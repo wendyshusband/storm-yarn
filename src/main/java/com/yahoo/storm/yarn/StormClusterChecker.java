@@ -32,13 +32,13 @@ class StormClusterChecker extends Thread {
 
     @Override
     public void run() {
-        LOG.info("Try to connect storm nimbus");
+        LOG.info("StormClusterChecker try to connect storm nimbus");
         while (true) {
             while (nimbus == null) {
                 try {
                     Thread.sleep(10000);
                     nimbus = NimbusClient.getConfiguredClient(stormConf).getClient();
-                    LOG.info("Connected to storm nimbus, start checker...");
+                    LOG.info("Connected to storm nimbus, start StormClusterChecker...");
                 } catch (Exception e) {
                 }
             }

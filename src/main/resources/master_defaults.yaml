@@ -13,8 +13,9 @@
 #  limitations under the License. See accompanying LICENSE file.
 #
 master.host: "localhost"
-master.thrift.port: 9000
+master.thrift.port: 9002
 
+executors.per.worker: 2
 master.initial-num-supervisors: 1
 master.container.priority: 0
 master.container.size-mb: 4096
@@ -30,12 +31,12 @@ nimbus.thrift.threads: 64
 nimbus.thrift.max_buffer_size: 1048576
 
 drpc.thrift.transport: "org.apache.storm.security.auth.SimpleTransportPlugin"
-drpc.port: 9000
+drpc.port: 9002
 drpc.queue.size: 128
 drpc.worker.threads: 64
 drpc.max_buffer_size: 1048576
 
-ui.port: 7070
+ui.port: 7071
 
 storm.messaging.transport: "org.apache.storm.messaging.netty.Context"
 storm.messaging.netty.buffer_size: 1048576

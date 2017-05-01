@@ -85,6 +85,7 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
                 if (it.next().getId().equals(status.getContainerId())) {
                     it.remove();
                     LOG.info("Remove completed container {}", status.getContainerId());
+                    LOG.info(status.getState()+":po:"+status.getExitStatus()+"getDiagnostics"+status.getDiagnostics());
                     break;
                 }
             }
@@ -222,7 +223,6 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
         localResources.put("conf", Util.newYarnAppResource(fs, confDst));
 
         launchContext.setLocalResources(localResources);
-
         // CLC: command
         List<String> supervisorArgs = Util.buildSupervisorCommands(this.storm_conf,workingDirectory,stormHomeInZip);
         launchContext.setCommands(supervisorArgs);

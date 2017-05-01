@@ -1,0 +1,10 @@
+# .gitignore for maven 
+target/
+*.releaseBackup
+
+## .gitignore for intellij
+ 
+*.iml
+*.ipr
+*.iws
+.idea/
