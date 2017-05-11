@@ -111,6 +111,16 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
             hosts.addAll(requestingNodes);
             availableNodes = yarnClient.getNodeReports(NodeState.RUNNING).stream()
                     .filter(n -> !hosts.contains(n.getNodeId().getHost())).toArray(NodeReport[]::new);
+            LOG.info(String.valueOf(hosts.size())+"~~~~");
+            LOG.info(String.valueOf(availableNodes.length)+"~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            for(NodeReport s : availableNodes){
+                LOG.info(s.getRackName());
+                LOG.info(String.valueOf(s.getNodeId()));
+                LOG.info(s.getHttpAddress());
+                LOG.info(String.valueOf(s.getNumContainers()));
+                LOG.info(String.valueOf(s.getCapability()));
+            }
+            LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`");
         } catch (Exception e) {
             LOG.warn("can not get node list", e);
             return;
@@ -120,11 +130,13 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
         LOG.info("Require {} supervisors, and {} nodes available", requiredNumSupervisors, availableNodes.length);
         for (int i = 0; i < num; i++) {
             String node = availableNodes[i].getNodeId().getHost();
+            LOG.info(node+"nodenode!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             requestingNodes.add(node);
             ContainerRequest req = new ContainerRequest(this.maxResourceCapability,
                     new String[]{node}, // String[] nodes,
                     null, // String[] racks,
                     DEFAULT_PRIORITY, false);
+            LOG.info(req.toString()+"req!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             super.addContainerRequest(req);
         }
     }

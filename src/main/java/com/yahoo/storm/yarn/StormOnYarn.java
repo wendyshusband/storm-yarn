@@ -46,6 +46,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 public class StormOnYarn {
+    //private static final Logger LOG = LoggerFactory.getLogger(StormOnYarn.class);
     private static final Logger LOG = LoggerFactory.getLogger(StormOnYarn.class);
 
     private YarnClient _yarn;
@@ -125,11 +126,11 @@ public class StormOnYarn {
         GetNewApplicationResponse app = client_app.getNewApplicationResponse();
         _appId = app.getApplicationId();
         LOG.debug("_appId:" + _appId);
-
         if (amMB > app.getMaximumResourceCapability().getMemory()) {
             //TODO need some sanity checks
             amMB = app.getMaximumResourceCapability().getMemory();
         }
+        LOG.info(String.valueOf(app.getMaximumResourceCapability())+"cccccccccccccccccccccccccccccccccc");
         ApplicationSubmissionContext appContext =
                 Records.newRecord(ApplicationSubmissionContext.class);
         appContext.setApplicationId(app.getApplicationId());
@@ -266,6 +267,7 @@ public class StormOnYarn {
         // For now, only memory is supported so we set memory requirements
         Resource capability = Records.newRecord(Resource.class);
         capability.setMemory(amMB);
+        LOG.info(capability.toString()+"ggggggggggggggggggggggggggggggggggggggggggggggggggggg");
         appContext.setResource(capability);
         appContext.setAMContainerSpec(amContainer);
 

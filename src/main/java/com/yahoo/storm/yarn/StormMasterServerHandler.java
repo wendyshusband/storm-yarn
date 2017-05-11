@@ -244,4 +244,7 @@ public class StormMasterServerHandler implements StormMaster.Iface {
         return _client.getAllContainerInfo();
     }
 
+    public void ssd(){
+        _client.getAvailableResources();
+    }
 }

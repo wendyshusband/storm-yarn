@@ -48,7 +48,6 @@ class LaunchCommand implements Client.ClientCommand {
 
   @Override
   public void process(CommandLine cl) throws Exception {
-
     String config_file = null;
     List remaining_args = cl.getArgList();
     if (remaining_args!=null && !remaining_args.isEmpty()) {
@@ -56,7 +55,7 @@ class LaunchCommand implements Client.ClientCommand {
     }
     Map stormConf = Config.readStormConfig(config_file);
 
-    String appName = cl.getOptionValue("appname", "Storm-on-Yarn");
+    String appName = cl.getOptionValue("appname", "Storm-on-Yarn-DRS");
     String queue = cl.getOptionValue("queue", "default");
 
     String storm_zip_location = cl.getOptionValue("stormZip");

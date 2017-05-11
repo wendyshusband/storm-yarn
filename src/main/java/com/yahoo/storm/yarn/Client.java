@@ -33,6 +33,7 @@ public class Client {
     }
 
     public static class HelpCommand implements ClientCommand {
+
         HashMap<String, ClientCommand> _commands;
         public HelpCommand(HashMap<String, ClientCommand> commands) {
             _commands = commands;

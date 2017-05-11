@@ -245,7 +245,8 @@ public class MasterServer extends ThriftServer {
             LOG.info("launch " + numSupervisors + " supervisors");
             _handler.addSupervisors(numSupervisors);
             //new StormClusterChecker(storm_conf, _handler).start();
-            new MkDecisionByExecutorChecker((Integer) storm_conf.get(Config.EXECUTORS_PER_WORKER),storm_conf,_handler).start();
+            //(Integer) storm_conf.get(Config.EXECUTORS_PER_WORKER),
+            //new MkDecisionChecker(storm_conf,_handler).start();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
