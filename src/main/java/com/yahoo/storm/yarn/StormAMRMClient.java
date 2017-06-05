@@ -111,7 +111,7 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
             hosts.addAll(requestingNodes);
             availableNodes = yarnClient.getNodeReports(NodeState.RUNNING).stream()
                     .filter(n -> !hosts.contains(n.getNodeId().getHost())).toArray(NodeReport[]::new);
-            LOG.info(String.valueOf(hosts.size())+"~~~~");
+            LOG.info(String.valueOf(hosts.size())+"~~"+"~~"+requestingNodes.isEmpty());
             LOG.info(String.valueOf(availableNodes.length)+"~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             for(NodeReport s : availableNodes){
                 LOG.info(s.getRackName());
@@ -132,6 +132,7 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
             String node = availableNodes[i].getNodeId().getHost();
             LOG.info(node+"nodenode!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             requestingNodes.add(node);
+
             ContainerRequest req = new ContainerRequest(this.maxResourceCapability,
                     new String[]{node}, // String[] nodes,
                     null, // String[] racks,
@@ -259,7 +260,7 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
     public synchronized void removeSupervisors(String hostname) {
         LOG.info("removing container id: " + hostname + this.supervisorsAreToRun);
         if (this.supervisorsAreToRun) {
-            LOG.debug("remove the needless supervisors, stop the container...");
+            LOG.info("remove the needless supervisors, stop the container...");
             releaseSupervisorsRequest(hostname);
         }else{
             LOG.error("No supervisor is running!!!");
@@ -272,7 +273,7 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
             ContainerId id;
             id = it.next().getId();
             if(id.toString().equals(hostname)) {
-                LOG.debug("Releasing container (id:" + id + ")");
+                LOG.info("Releasing container (id:" + id + ")");
                 releaseAssignedContainer(id);
                 it.remove();
                 break;
