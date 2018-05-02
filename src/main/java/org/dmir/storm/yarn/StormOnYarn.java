@@ -14,9 +14,8 @@
  * limitations under the License. See accompanying LICENSE file.
  */
 
-package com.yahoo.storm.yarn;
+package org.dmir.storm.yarn;
 
-import com.yahoo.storm.yarn.generated.StormMaster;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DataOutputBuffer;
@@ -34,8 +33,11 @@ import org.apache.hadoop.yarn.util.Apps;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
 import org.apache.storm.utils.Utils;
+import org.dmir.storm.yarn.generated.StormMaster;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory;//tkl
+//import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,7 +48,6 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 public class StormOnYarn {
-    //private static final Logger LOG = LoggerFactory.getLogger(StormOnYarn.class);
     private static final Logger LOG = LoggerFactory.getLogger(StormOnYarn.class);
 
     private YarnClient _yarn;
@@ -126,11 +127,11 @@ public class StormOnYarn {
         GetNewApplicationResponse app = client_app.getNewApplicationResponse();
         _appId = app.getApplicationId();
         LOG.debug("_appId:" + _appId);
+
         if (amMB > app.getMaximumResourceCapability().getMemory()) {
             //TODO need some sanity checks
             amMB = app.getMaximumResourceCapability().getMemory();
         }
-        LOG.info(String.valueOf(app.getMaximumResourceCapability())+"cccccccccccccccccccccccccccccccccc");
         ApplicationSubmissionContext appContext =
                 Records.newRecord(ApplicationSubmissionContext.class);
         appContext.setApplicationId(app.getApplicationId());
@@ -224,19 +225,25 @@ public class StormOnYarn {
         LOG.info("YARN CLASSPATH = [" + yarn_class_path + "]");
         proc.waitFor();
         reader.close();
-        Apps.addToEnvironment(env, Environment.CLASSPATH.name(), yarn_class_path);
+        //Apps.addToEnvironment(env, Environment.CLASSPATH.name(), yarn_class_path);
         Apps.addToEnvironment(env, Environment.CLASSPATH.name(), yarn_class_path,":");
         String stormHomeInZip = Util.getStormHomeInZip(fs, zip, stormVersion.version());
         Apps.addToEnvironment(env, Environment.CLASSPATH.name(), "./storm/" + stormHomeInZip + "/*",":");
         Apps.addToEnvironment(env, Environment.CLASSPATH.name(), "./storm/" + stormHomeInZip + "/lib/*",":");
 
-        String java_home = (String) _stormConf.get("storm.yarn.java_home");
+        String java_home = (String) _stormConf.get("storm.yarn.java_home");//tkl
         if (java_home == null)
             java_home = System.getenv("JAVA_HOME");
 
         if (java_home != null && !java_home.isEmpty())
             env.put("JAVA_HOME", java_home);
         LOG.info("Using JAVA_HOME = [" + env.get("JAVA_HOME") + "]");
+
+        //tkl  for docker
+        String docker_image = (String) _stormConf.get("storm.yarn.docker_image_name");
+        if(docker_image !=null && !docker_image.isEmpty()){
+            env.put("yarn.nodemanager.docker-container-executor.image-name",docker_image);
+        }
 
         env.put("appJar", appMasterJar);
         env.put("appName", appName);
@@ -251,11 +258,11 @@ public class StormOnYarn {
             vargs.add(env.get("JAVA_HOME") + "/bin/java");
         else
             vargs.add("java");
-        vargs.add("-Dstorm.home=./storm/" + stormHomeInZip);
+        vargs.add("-Dstorm.home=./storm/" + stormHomeInZip);//tkl
+        //vargs.add("-Dstorm.home=./storm/" + stormHomeInZip + "/");
         vargs.add("-Dlogfile.name=" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/master.log");
-
         //vargs.add("-verbose:class");
-        vargs.add("com.yahoo.storm.yarn.MasterServer");
+        vargs.add("org.dmir.storm.yarn.MasterServer");
         vargs.add("1>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/stdout");
         vargs.add("2>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/stderr");
         // Set java executable command
@@ -267,7 +274,6 @@ public class StormOnYarn {
         // For now, only memory is supported so we set memory requirements
         Resource capability = Records.newRecord(Resource.class);
         capability.setMemory(amMB);
-        LOG.info(capability.toString()+"ggggggggggggggggggggggggggggggggggggggggggggggggggggg");
         appContext.setResource(capability);
         appContext.setAMContainerSpec(amContainer);
 
@@ -352,7 +358,7 @@ public class StormOnYarn {
             }
         }
 
-        throw new IOException("Fail to locate a JAR for class: " + my_class.getName());
+        throw new IOException("Fail to locat a JAR for class: " + my_class.getName());
     }
 
     public static StormOnYarn launchApplication(String appName, String queue,

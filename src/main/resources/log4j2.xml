@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN" monitorInterval="60">
-    <!--Properties>
+    <Properties>
         <Property name="LOG_NAME">${sys:logfile.name}</Property>
-    </Properties-->
+    </Properties>
     <Appenders >
-		<RollingFile name="A1" fileName="${sys:logfile.name}" filePattern="${sys:logfile.name}.%i">
+		<RollingFile name="A1" fileName="${LOG_NAME}" filePattern="${LOG_NAME}.%i">
 			<PatternLayout>
                 <pattern>%d{yyyy-MM-dd HH:mm:ss} %c{1} [%p] %m%n</pattern>
             </PatternLayout>
@@ -21,9 +21,6 @@
             </Policies>
             <DefaultRolloverStrategy max="9"/>
 		</RollingFile>
-        <Console name="ConsolePrint" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %c{1} [%p] %m%n"/>
-        </Console>
 	</Appenders>
 	 <Loggers>
         <Root level="INFO">
@@ -32,15 +29,6 @@
         <Logger name="org.apache.storm.security.auth.authorizer" additivity="false" level="INFO">
     		<AppenderRef ref="ACCESS" />
   		</Logger>
-         <Logger name="com.yahoo.storm.yarn.StormOnYarn" additivity="false" level="ALL">
-             <AppenderRef ref="ConsolePrint" />
-         </Logger>
-         <Logger name="com.yahoo.storm.yarn.Client" additivity="false" level="ALL">
-             <AppenderRef ref="ConsolePrint" />
-         </Logger>
-         <Logger name="com.yahoo.storm.yarn.LaunchCommand" additivity="false" level="ALL">
-             <AppenderRef ref="ConsolePrint" />
-         </Logger>
-    </Loggers>
 
+    </Loggers>
 </Configuration>

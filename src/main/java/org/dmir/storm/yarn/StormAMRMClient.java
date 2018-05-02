@@ -14,7 +14,7 @@
  * limitations under the License. See accompanying LICENSE file.
  */
 
-package com.yahoo.storm.yarn;
+package org.dmir.storm.yarn;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -40,10 +40,12 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+//import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
 
 class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
     private static final Logger LOG = LoggerFactory.getLogger(StormAMRMClient.class);
-
+   // private static final Logger LOG = LogManager.getLogger(StormAMRMClient.class);//tkl
     @SuppressWarnings("rawtypes")
     private final Map storm_conf;
     private final YarnConfiguration hadoopConf;
@@ -56,6 +58,7 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
     private NMClientImpl nmClient;
     private YarnClient yarnClient;
     private Set<String> requestingNodes = new HashSet<>();
+    //private List<Container> allContainerInfo;//tkl
 
     public StormAMRMClient(ApplicationAttemptId appAttemptId,
                            @SuppressWarnings("rawtypes") Map storm_conf,
@@ -84,8 +87,12 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
             while (it.hasNext()) {
                 if (it.next().getId().equals(status.getContainerId())) {
                     it.remove();
-                    LOG.info("Remove completed container {}", status.getContainerId());
-                    LOG.info(status.getState()+":po:"+status.getExitStatus()+"getDiagnostics"+status.getDiagnostics());
+                    //LOG.info("Remove completed container {}", status.getContainerId());
+                    //tkl
+                    /*LOG.info("Remove completed container getContainerId {}", status.getContainerId());
+                    LOG.info("Remove completed container getDiagnostics {}", status.getDiagnostics());
+                    LOG.info("Remove completed container getExitStatus {}", status.getExitStatus());
+                    LOG.info("Remove completed container getState {}", status.getState());*/
                     break;
                 }
             }
@@ -111,16 +118,6 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
             hosts.addAll(requestingNodes);
             availableNodes = yarnClient.getNodeReports(NodeState.RUNNING).stream()
                     .filter(n -> !hosts.contains(n.getNodeId().getHost())).toArray(NodeReport[]::new);
-            LOG.info(String.valueOf(hosts.size())+"~~"+"~~"+requestingNodes.isEmpty());
-            LOG.info(String.valueOf(availableNodes.length)+"~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            for(NodeReport s : availableNodes){
-                LOG.info(s.getRackName());
-                LOG.info(String.valueOf(s.getNodeId()));
-                LOG.info(s.getHttpAddress());
-                LOG.info(String.valueOf(s.getNumContainers()));
-                LOG.info(String.valueOf(s.getCapability()));
-            }
-            LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`");
         } catch (Exception e) {
             LOG.warn("can not get node list", e);
             return;
@@ -130,14 +127,11 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
         LOG.info("Require {} supervisors, and {} nodes available", requiredNumSupervisors, availableNodes.length);
         for (int i = 0; i < num; i++) {
             String node = availableNodes[i].getNodeId().getHost();
-            LOG.info(node+"nodenode!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             requestingNodes.add(node);
-
             ContainerRequest req = new ContainerRequest(this.maxResourceCapability,
                     new String[]{node}, // String[] nodes,
                     null, // String[] racks,
                     DEFAULT_PRIORITY, false);
-            LOG.info(req.toString()+"req!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             super.addContainerRequest(req);
         }
     }
@@ -200,11 +194,19 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
         Map<String, String> env = new HashMap<String, String>();
         env.put("STORM_LOG_DIR", ApplicationConstants.LOG_DIR_EXPANSION_VAR);
 
-        String java_home = (String) storm_conf.get("storm.yarn.java_home");
+        //tkl  for docker
+        LOG.info("STORM_LOG_DIR"+ApplicationConstants.LOG_DIR_EXPANSION_VAR);
+        String docker_image = (String) storm_conf.get("storm.yarn.docker_image_name");
+        if(docker_image !=null && !docker_image.isEmpty()){
+            env.put("yarn.nodemanager.docker-container-executor.image-name",docker_image);
+        }
+        String java_home = (String) storm_conf.get("storm.yarn.java_home");//attention!tkl
         if (java_home == null)
             java_home = System.getenv("JAVA_HOME");
         if (java_home != null && !java_home.isEmpty())
             env.put("JAVA_HOME", java_home);
+
+        //////////////////////////////////////////////////////////////////////////////////tkl
 
         launchContext.setEnvironment(env);
 
@@ -224,24 +226,38 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
             localResources.put("storm", Util.newYarnAppResource(fs, zip,
                     LocalResourceType.ARCHIVE, LocalResourceVisibility.APPLICATION));
 
+        //tkl///////////////////
         String userShortName = user.getShortUserName();
-        String workingDirectory = hadoopConf.get("yarn.nodemanager.local-dirs") + "/usercache/"+ userShortName
-                + "/appcache/" + appAttemptId.getApplicationId() + "/" + container.getId();
+        String workingDirectory = hadoopConf.get("yarn.nodemanager.local-dirs")+"/usercache/"+userShortName
+                +"/appcache/"+appAttemptId.getApplicationId()+"/"+container.getId();
         Version stormVersion = Util.getStormVersion();
         String stormHomeInZip = Util.getStormHomeInZip(fs, zip, stormVersion.version());
+        //tkl///////////////////
         String appHome = Util.getApplicationHomeForId(appAttemptId.toString());
-        String containerHome = appHome + Path.SEPARATOR + container.getId().getContainerId();
+        LOG.info("getApplicationHomeForId: "+appHome);//tkl
+        String containerHome = appHome + Path.SEPARATOR + container.getId().getContainerId();//tkl.getId();
+        LOG.info("containerHome: "+containerHome);//tklworkingDirectory+"/"/*tkl*/+
         Map supervisorConf = new HashMap(this.storm_conf);
+
+        //tkl
+        //supervisorConf.put("storm.local.dir", new File((String) supervisorConf.get("storm.local.dir"),
+          //      UUID.randomUUID().toString()).getPath());
+
         Path confDst = Util.createConfigurationFileInFs(fs, containerHome, supervisorConf, this.hadoopConf);
         localResources.put("conf", Util.newYarnAppResource(fs, confDst));
 
+        LOG.info("localResources:"+localResources.toString()+"|"+localResources.size()+"|"+localResources.values());//tkl
         launchContext.setLocalResources(localResources);
+
         // CLC: command
         List<String> supervisorArgs = Util.buildSupervisorCommands(this.storm_conf,workingDirectory,stormHomeInZip);
+        LOG.info("supervisorArgs:"+supervisorArgs);//tkl
         launchContext.setCommands(supervisorArgs);
         try {
             LOG.info("Use NMClient to launch supervisors in container. ");
             nmClient.startContainer(container, launchContext);
+            //tklString userShortName = user.getShortUserName();
+            System.out.println("supervisor user.dir:"+System.getProperty("user.dir"));//tkl
             if (userShortName != null)
                 LOG.info("Supervisor log: http://" + container.getNodeHttpAddress() + "/node/containerlogs/"
                         + container.getId().toString() + "/" + userShortName + "/supervisor.log");
@@ -257,23 +273,24 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
         LOG.info("Max Capability is now " + this.maxResourceCapability);
     }
 
+    //tkl//////////////////////////////////////////////////////////////////////////////////
     public synchronized void removeSupervisors(String hostname) {
-        LOG.info("removing container id: " + hostname + this.supervisorsAreToRun);
-        if (this.supervisorsAreToRun) {
-            LOG.info("remove the needless supervisors, stop the container...");
+            LOG.info("removing container id: "+ hostname+this.supervisorsAreToRun);
+        if(this.supervisorsAreToRun) {
+            LOG.debug("remove the needless supervisors, stop the container...");
             releaseSupervisorsRequest(hostname);
         }else{
-            LOG.error("No supervisor is running!!!");
+            LOG.debug("No supervisor is running!!!");
         }
     }
 
     private synchronized void releaseSupervisorsRequest(String hostname) {
         Iterator<Container> it = this.containers.iterator();
+        ContainerId id;
         while (it.hasNext()) {
-            ContainerId id;
             id = it.next().getId();
             if(id.toString().equals(hostname)) {
-                LOG.info("Releasing container (id:" + id + ")");
+                LOG.debug("Releasing container (id:" + id + ")");
                 releaseAssignedContainer(id);
                 it.remove();
                 break;
@@ -284,4 +301,5 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
     public Set<Container> getAllContainerInfo() {
         return this.containers;
     }
+    //tkl//////////////////////////////////////////////////////////////////////////////////
 }

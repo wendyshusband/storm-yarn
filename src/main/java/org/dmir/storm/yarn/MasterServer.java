@@ -14,9 +14,8 @@
  * limitations under the License. See accompanying LICENSE file.
  */
 
-package com.yahoo.storm.yarn;
+package org.dmir.storm.yarn;
 
-import com.yahoo.storm.yarn.generated.StormMaster;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Options;
@@ -29,7 +28,11 @@ import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.storm.security.auth.ThriftServer;
+import org.apache.storm.shade.org.apache.curator.framework.recipes.cache.NodeCache;
+import org.apache.storm.shade.org.apache.curator.framework.recipes.cache.NodeCacheListener;
 import org.apache.storm.utils.Utils;
+import org.dmir.storm.yarn.generated.StormMaster;
+import org.dmir.storm.yarn.generated.StormMaster.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +44,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+
+//import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
 
 public class MasterServer extends ThriftServer {
     private static final Logger LOG = LoggerFactory.getLogger(MasterServer.class);
@@ -140,7 +146,7 @@ public class MasterServer extends ThriftServer {
 
         final String host = InetAddress.getLocalHost().getHostName();
 
-        storm_conf.put("nimbus.seeds", Arrays.asList(new String[]{host}));
+        storm_conf.put("nimbus.seeds", Arrays.asList(new String[]{host}));//tkl
 
         StormAMRMClient rmClient =
                 new StormAMRMClient(appAttemptID, storm_conf, hadoopConf);
@@ -178,7 +184,7 @@ public class MasterServer extends ThriftServer {
                 server.stop();
             }
             LOG.info("Stop RM client");
-            rmClient.stop();
+            rmClient.stop(); 
         }
         System.exit(0);
     }
@@ -227,8 +233,9 @@ public class MasterServer extends ThriftServer {
     private MasterServer(@SuppressWarnings("rawtypes") Map storm_conf,
                          StormMasterServerHandler handler) {
         super(storm_conf,
-                new StormMaster.Processor<StormMaster.Iface>(handler),
-                Config.MASTER_THRIFT_TYPE);
+                new Processor<StormMaster.Iface>(handler),
+                Config.MASTER_THRIFT_TYPE);//tkl
+                //Utils.getInt(storm_conf.get(Config.MASTER_THRIFT_PORT)));
         try {
 
             _handler = handler;
@@ -245,11 +252,33 @@ public class MasterServer extends ThriftServer {
             LOG.info("launch " + numSupervisors + " supervisors");
             _handler.addSupervisors(numSupervisors);
             //new StormClusterChecker(storm_conf, _handler).start();
-            //(Integer) storm_conf.get(Config.EXECUTORS_PER_WORKER),
-            new MkDecisionChecker(storm_conf,_handler).start();
+            watchResourceRequest(storm_conf, _handler);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void watchResourceRequest(Map stormConf, StormMasterServerHandler master) throws Exception {
+
+        NodeCache nodeCache = ZKhandle.createNodeCache("/resource/request");
+        LOG.info(" watch /resource/request");
+        nodeCache.getListenable().addListener(new NodeCacheListener() {
+
+            public void nodeChanged() throws Exception {
+                int supervisor = Integer.valueOf(new String(nodeCache.getCurrentData().getData()));
+                if (supervisor > 0) {
+                    for (int i=0; i<supervisor; i++) {
+                        master.addSupervisors(1);
+                    }
+                } else {
+                    String[] nodes = ZKhandle.getNeedRemoveSupervisor(supervisor);
+                    for (int i=0; i<nodes.length; i++) {
+                        master.removeSupervisors(nodes[i]);
+                    }
+                }
+                ZKhandle.sentResourceResponse(1);
+            }
+        }, ZKhandle.EXECUTOR_SERVICE);
     }
 
     public void stop() {

@@ -14,16 +14,18 @@
  * limitations under the License. See accompanying LICENSE file.
  */
 
-package com.yahoo.storm.yarn;
+package org.dmir.storm.yarn;
 
-import com.yahoo.storm.yarn.generated.StormMaster;
 import org.apache.storm.Config;
 import com.google.common.base.Joiner;
+import org.dmir.storm.yarn.generated.StormMaster;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.storm.thrift.TException;
 import org.json.simple.JSONValue;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory;//tkl
+//import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -67,7 +69,7 @@ public class StormMasterServerHandler implements StormMaster.Iface {
         try {
             String host_addr = InetAddress.getLocalHost().getHostAddress();
             LOG.info("Storm master host:" + host_addr);
-            _storm_conf.put(Config.NIMBUS_SEEDS, Arrays.asList(new String[]{host_addr}));
+            _storm_conf.put(Config.NIMBUS_SEEDS, Arrays.asList(new String[]{host_addr}));//tkl
 
         } catch (UnknownHostException ex) {
             LOG.warn("Failed to get IP address of local host");
@@ -108,12 +110,13 @@ public class StormMasterServerHandler implements StormMaster.Iface {
         _client.addSupervisors(number);
     }
 
+    //tkl///////////////////////////////////////////////////////////////////////////////
     @Override
     public void removeSupervisors(String hostname) throws TException {
         LOG.info("remove supervisors...");
         _client.removeSupervisors(hostname);
     }
-
+    //tkl//////////////////////////////////////////////////////////////////////////////
     class StormProcess extends Thread {
         Process _process;
         String _name;
@@ -239,12 +242,10 @@ public class StormMasterServerHandler implements StormMaster.Iface {
         _masterServer.stop();
     }
 
+    ///tkl  get all container info
     public Set<Container> getContainerInfo(){
         LOG.info("get all container info...");
         return _client.getAllContainerInfo();
     }
 
-    public void ssd(){
-        _client.getAvailableResources();
-    }
 }

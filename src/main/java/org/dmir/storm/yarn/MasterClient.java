@@ -14,12 +14,12 @@
  * limitations under the License. See accompanying LICENSE file.
  */
 
-package com.yahoo.storm.yarn;
+package org.dmir.storm.yarn;
 
-import com.yahoo.storm.yarn.generated.StormMaster;
 import org.apache.storm.security.auth.ThriftClient;
 import org.apache.storm.thrift.transport.TTransportException;
 import org.apache.storm.utils.Utils;
+import org.dmir.storm.yarn.generated.StormMaster;
 
 import java.util.Map;
 
@@ -32,12 +32,12 @@ public class MasterClient extends ThriftClient {
             String masterHost = (String) conf.get(Config.MASTER_HOST);
             int masterPort = Utils.getInt(conf.get(Config.MASTER_THRIFT_PORT));
             try {
-                Integer timeout = Utils.getInt(conf.get(Config.MASTER_TIMEOUT_SECS));
-                return new MasterClient(conf, masterHost, masterPort, timeout);
+            	Integer timeout = Utils.getInt(conf.get(Config.MASTER_TIMEOUT_SECS));
+            	return new MasterClient(conf, masterHost, masterPort, timeout);
             } catch (IllegalArgumentException e) {
-                return new MasterClient(conf, masterHost, masterPort, null);
+            	return new MasterClient(conf, masterHost, masterPort, null);
             }
-
+            
         } catch (TTransportException ex) {
             throw new RuntimeException(ex);
         }
@@ -45,7 +45,7 @@ public class MasterClient extends ThriftClient {
 
     @SuppressWarnings("rawtypes")
     public MasterClient(Map conf, String host, int port, Integer timeout) throws TTransportException {
-        super(conf, Config.MASTER_THRIFT_TYPE, host, port, timeout);
+        super(conf, Config.MASTER_THRIFT_TYPE, host, port, timeout);//tkl
         _client = new StormMaster.Client(_protocol);
     }
 

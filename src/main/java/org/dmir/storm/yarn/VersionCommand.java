@@ -12,15 +12,21 @@
  * limitations under the License. See accompanying LICENSE file.
  */
 
-package com.yahoo.storm.yarn;
+package org.dmir.storm.yarn;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
+import org.dmir.storm.yarn.Client.ClientCommand;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory;//tkl
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
-class VersionCommand implements Client.ClientCommand {
+class VersionCommand implements ClientCommand {
+  private static final Logger LOG = LoggerFactory.getLogger(StormMasterCommand.class);
+  //private static final Logger LOG = LogManager.getLogger(StormMasterCommand.class);//tkl
+
   VersionCommand() {
   }
 
@@ -29,7 +35,7 @@ class VersionCommand implements Client.ClientCommand {
     Options opts = new Options();
     return opts;
   }
-
+  
   @Override
   public String getHeaderDescription() {
     return "storm-yarn version";

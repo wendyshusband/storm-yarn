@@ -1,4 +1,4 @@
-package com.yahoo.storm.yarn;
+package org.dmir.storm.yarn;
 
 import org.apache.storm.generated.ClusterSummary;
 import org.apache.storm.generated.Nimbus;
@@ -8,7 +8,9 @@ import org.apache.storm.utils.NimbusClient;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.storm.thrift.TException;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory;//tkl
+//import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -19,9 +21,11 @@ import java.util.Map;
 class StormClusterChecker extends Thread {
 
     private static Logger LOG = LoggerFactory.getLogger(StormClusterChecker.class);
+    //private static final Logger LOG = LogManager.getLogger(StormClusterChecker.class);//tkl
     private Map<String, Object> stormConf;
     private final StormMasterServerHandler master;
     private Nimbus.Iface nimbus;
+    //private boolean flag = false;
 
     public StormClusterChecker(Map<String, Object> stormConf, StormMasterServerHandler master) {
         this.stormConf = stormConf;
@@ -32,13 +36,13 @@ class StormClusterChecker extends Thread {
 
     @Override
     public void run() {
-        LOG.info("StormClusterChecker try to connect storm nimbus");
+        LOG.info("Try to connect storm nimbus");
         while (true) {
             while (nimbus == null) {
                 try {
                     Thread.sleep(10000);
                     nimbus = NimbusClient.getConfiguredClient(stormConf).getClient();
-                    LOG.info("Connected to storm nimbus, start StormClusterChecker...");
+                    LOG.info("Connected to storm nimbus, start checker...");
                 } catch (Exception e) {
                 }
             }
@@ -55,9 +59,12 @@ class StormClusterChecker extends Thread {
                 if (totalUsed >= totalNumWorkers) {
                     LOG.info("Need more workers, add 1 supervisor");
                     master.addSupervisors(1);
-                }else{
+                //tkl/////////////////////////////////////////////////////////////////////////////////////
+                }else{//totalUsed < totalNumWorkers
                     int oneSupervisorWorkersNum = stormCluster.get_supervisors().get(0).get_num_workers();
-                    int numOfVacant = (totalNumWorkers - totalUsed) ;
+                    int numOfVacant = (totalNumWorkers - totalUsed) ;// oneSupervisorWorkersNum;
+                    LOG.info("oneSupervisorWorkersNum =" + oneSupervisorWorkersNum);
+                    LOG.info("numOfVacant =" + numOfVacant);
                     if(numOfVacant > oneSupervisorWorkersNum){
                         Iterator<Container> it = master.getContainerInfo().iterator();
                         String containerID;
@@ -68,9 +75,10 @@ class StormClusterChecker extends Thread {
                         }
                     }
                 }
+                ////////////////////////////////////////////tkl/////////////////////////////////
             } catch (TException e) {
                 nimbus = null;
             }
-        }
+        }//while
     }
 }

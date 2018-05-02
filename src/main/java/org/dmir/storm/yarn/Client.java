@@ -1,10 +1,12 @@
-package com.yahoo.storm.yarn;
+package org.dmir.storm.yarn;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory;//tkl
+//import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,7 +35,6 @@ public class Client {
     }
 
     public static class HelpCommand implements ClientCommand {
-
         HashMap<String, ClientCommand> _commands;
         public HelpCommand(HashMap<String, ClientCommand> commands) {
             _commands = commands;
@@ -94,7 +95,7 @@ public class Client {
         commands.put("stopSupervisors", new StormMasterCommand(StormMasterCommand.COMMAND.STOP_SUPERVISORS));
         commands.put("shutdown", new StormMasterCommand(StormMasterCommand.COMMAND.SHUTDOWN));
         commands.put("version", new VersionCommand());
-        commands.put("removeSupervisors", new StormMasterCommand(StormMasterCommand.COMMAND.REMOVE_SUPERVISORS));
+        commands.put("removeSupervisors", new StormMasterCommand(StormMasterCommand.COMMAND.REMOVE_SUPERVISORS));//tkl
         String commandName = null;
         String[] commandArgs = null;
         if (args.length < 1) {
