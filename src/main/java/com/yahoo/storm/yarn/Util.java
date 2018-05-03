@@ -14,7 +14,7 @@
  * limitations under the License. See accompanying LICENSE file.
  */
 
-package org.dmir.storm.yarn;
+package com.yahoo.storm.yarn;
 
 import com.google.common.base.Joiner;
 import org.apache.hadoop.fs.*;

@@ -1,4 +1,4 @@
-package org.dmir.storm.yarn;
+package com.yahoo.storm.yarn;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;

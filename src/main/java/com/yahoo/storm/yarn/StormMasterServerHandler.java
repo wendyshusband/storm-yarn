@@ -14,11 +14,11 @@
  * limitations under the License. See accompanying LICENSE file.
  */
 
-package org.dmir.storm.yarn;
+package com.yahoo.storm.yarn;
 
 import org.apache.storm.Config;
 import com.google.common.base.Joiner;
-import org.dmir.storm.yarn.generated.StormMaster;
+import com.yahoo.storm.yarn.generated.StormMaster;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.storm.thrift.TException;
 import org.json.simple.JSONValue;

@@ -14,12 +14,12 @@
  * limitations under the License. See accompanying LICENSE file.
  */
 
-package org.dmir.storm.yarn;
+package com.yahoo.storm.yarn;
 
+import com.yahoo.storm.yarn.generated.StormMaster;
 import org.apache.storm.security.auth.ThriftClient;
 import org.apache.storm.thrift.transport.TTransportException;
 import org.apache.storm.utils.Utils;
-import org.dmir.storm.yarn.generated.StormMaster;
 
 import java.util.Map;
 

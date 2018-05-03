@@ -1,4 +1,4 @@
-package org.dmir.storm.yarn;
+package com.yahoo.storm.yarn;
 
 import org.apache.storm.shade.org.apache.curator.RetryPolicy;
 import org.apache.storm.shade.org.apache.curator.framework.CuratorFramework;

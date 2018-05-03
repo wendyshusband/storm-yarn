@@ -14,10 +14,9 @@
  * limitations under the License. See accompanying LICENSE file.
  */
 
-package org.dmir.storm.yarn;
+package com.yahoo.storm.yarn;
 
-import org.dmir.storm.yarn.Client.ClientCommand;
-import org.dmir.storm.yarn.generated.StormMaster;
+import com.yahoo.storm.yarn.generated.StormMaster;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -29,7 +28,7 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 
-class LaunchCommand implements ClientCommand {
+class LaunchCommand implements Client.ClientCommand {
   private static final Logger LOG = LoggerFactory.getLogger(LaunchCommand.class);
 
   @Override

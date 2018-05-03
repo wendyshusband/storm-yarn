@@ -14,8 +14,9 @@
  * limitations under the License. See accompanying LICENSE file.
  */
 
-package org.dmir.storm.yarn;
+package com.yahoo.storm.yarn;
 
+import com.yahoo.storm.yarn.generated.StormMaster;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Options;
@@ -31,8 +32,6 @@ import org.apache.storm.security.auth.ThriftServer;
 import org.apache.storm.shade.org.apache.curator.framework.recipes.cache.NodeCache;
 import org.apache.storm.shade.org.apache.curator.framework.recipes.cache.NodeCacheListener;
 import org.apache.storm.utils.Utils;
-import org.dmir.storm.yarn.generated.StormMaster;
-import org.dmir.storm.yarn.generated.StormMaster.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -233,7 +232,7 @@ public class MasterServer extends ThriftServer {
     private MasterServer(@SuppressWarnings("rawtypes") Map storm_conf,
                          StormMasterServerHandler handler) {
         super(storm_conf,
-                new Processor<StormMaster.Iface>(handler),
+                new StormMaster.Processor<StormMaster.Iface>(handler),
                 Config.MASTER_THRIFT_TYPE);//tkl
                 //Utils.getInt(storm_conf.get(Config.MASTER_THRIFT_PORT)));
         try {

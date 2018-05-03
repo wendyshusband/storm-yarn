@@ -14,14 +14,14 @@
  * limitations under the License. See accompanying LICENSE file.
  */
 
-package org.dmir.storm.yarn;
+package com.yahoo.storm.yarn;
 
+import com.yahoo.storm.yarn.generated.StormMaster;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.storm.thrift.TException;
 import org.apache.storm.thrift.transport.TTransportException;
-import org.dmir.storm.yarn.Client.ClientCommand;
-import org.dmir.storm.yarn.generated.StormMaster;
+import com.yahoo.storm.yarn.Client.ClientCommand;
 import org.json.simple.JSONValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;//tkl

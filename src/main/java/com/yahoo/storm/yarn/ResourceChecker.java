@@ -1,4 +1,4 @@
-package org.dmir.storm.yarn;
+package com.yahoo.storm.yarn;
 
 import org.apache.storm.generated.Nimbus;
 import org.slf4j.Logger;

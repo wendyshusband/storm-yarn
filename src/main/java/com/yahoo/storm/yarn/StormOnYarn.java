@@ -14,7 +14,7 @@
  * limitations under the License. See accompanying LICENSE file.
  */
 
-package org.dmir.storm.yarn;
+package com.yahoo.storm.yarn;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -33,7 +33,7 @@ import org.apache.hadoop.yarn.util.Apps;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
 import org.apache.storm.utils.Utils;
-import org.dmir.storm.yarn.generated.StormMaster;
+import com.yahoo.storm.yarn.generated.StormMaster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;//tkl
 //import org.apache.logging.log4j.Logger;
@@ -262,7 +262,7 @@ public class StormOnYarn {
         //vargs.add("-Dstorm.home=./storm/" + stormHomeInZip + "/");
         vargs.add("-Dlogfile.name=" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/master.log");
         //vargs.add("-verbose:class");
-        vargs.add("org.dmir.storm.yarn.MasterServer");
+        vargs.add("MasterServer");
         vargs.add("1>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/stdout");
         vargs.add("2>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/stderr");
         // Set java executable command

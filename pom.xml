@@ -44,7 +44,7 @@
     </repositories>
     <properties>
         <storm.version>1.0.1</storm.version>
-        <hadoop.version>2.7.3</hadoop.version>
+        <hadoop.version>2.7.4</hadoop.version>
     </properties>
     <dependencies>
         <dependency>
