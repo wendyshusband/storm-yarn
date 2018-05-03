@@ -44,9 +44,6 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-//import org.apache.logging.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
-
 public class MasterServer extends ThriftServer {
     private static final Logger LOG = LoggerFactory.getLogger(MasterServer.class);
 

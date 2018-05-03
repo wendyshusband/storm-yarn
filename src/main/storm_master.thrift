@@ -14,7 +14,7 @@
 #  limitations under the License. See accompanying LICENSE file.
 #
 
-namespace java org.dmir.storm.yarn.generated
+namespace java com.yahoo.storm.yarn.generated
 
 service StormMaster {
   // Storm configuration
@@ -23,7 +23,7 @@ service StormMaster {
 
   // supervisors
   void addSupervisors(1: i32 number);
-  void removeSupervisors(1: string supervisor_host);//tkl
+  void removeSupervisors(1: string supervisor_host);
 
   // start/stop nimbus
   void startNimbus();
