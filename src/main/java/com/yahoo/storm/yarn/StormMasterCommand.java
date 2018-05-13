@@ -21,6 +21,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.storm.thrift.TException;
 import org.apache.storm.thrift.transport.TTransportException;
+import com.yahoo.storm.yarn.Client.ClientCommand;
 import org.json.simple.JSONValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

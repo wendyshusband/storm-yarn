@@ -186,11 +186,19 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
         Map<String, String> env = new HashMap<String, String>();
         env.put("STORM_LOG_DIR", ApplicationConstants.LOG_DIR_EXPANSION_VAR);
 
-        String java_home = (String) storm_conf.get("storm.yarn.java_home");
+        //tkl  for docker
+        LOG.info("STORM_LOG_DIR"+ApplicationConstants.LOG_DIR_EXPANSION_VAR);
+        String docker_image = (String) storm_conf.get("storm.yarn.docker_image_name");
+        if(docker_image !=null && !docker_image.isEmpty()){
+            env.put("yarn.nodemanager.docker-container-executor.image-name",docker_image);
+        }
+        String java_home = (String) storm_conf.get("storm.yarn.java_home");//attention!tkl
         if (java_home == null)
             java_home = System.getenv("JAVA_HOME");
         if (java_home != null && !java_home.isEmpty())
             env.put("JAVA_HOME", java_home);
+
+        //////////////////////////////////////////////////////////////////////////////////tkl
 
         launchContext.setEnvironment(env);
 
@@ -218,6 +226,11 @@ class StormAMRMClient extends AMRMClientImpl<ContainerRequest> {
         String appHome = Util.getApplicationHomeForId(appAttemptId.toString());
         String containerHome = appHome + Path.SEPARATOR + container.getId().getContainerId();
         Map supervisorConf = new HashMap(this.storm_conf);
+
+
+        //supervisorConf.put("storm.local.dir", new File((String) supervisorConf.get("storm.local.dir"),
+          //      UUID.randomUUID().toString()).getPath());
+
         Path confDst = Util.createConfigurationFileInFs(fs, containerHome, supervisorConf, this.hadoopConf);
         localResources.put("conf", Util.newYarnAppResource(fs, confDst));
 

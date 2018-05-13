@@ -29,6 +29,8 @@ import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.storm.security.auth.ThriftServer;
+import org.apache.storm.shade.org.apache.curator.framework.recipes.cache.NodeCache;
+import org.apache.storm.shade.org.apache.curator.framework.recipes.cache.NodeCacheListener;
 import org.apache.storm.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -244,10 +246,39 @@ public class MasterServer extends ThriftServer {
                     Utils.getInt(storm_conf.get(Config.MASTER_NUM_SUPERVISORS));
             LOG.info("launch " + numSupervisors + " supervisors");
             _handler.addSupervisors(numSupervisors);
-            new StormClusterChecker(storm_conf, _handler).start();
+            //new StormClusterChecker(storm_conf, _handler).start();
+            watchResourceRequest(storm_conf, _handler);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void watchResourceRequest(Map stormConf, StormMasterServerHandler master) throws Exception {
+
+        List zkServer = (List) stormConf.get(org.apache.storm.Config.STORM_ZOOKEEPER_SERVERS);
+        int port = Utils.getInt(stormConf.get(org.apache.storm.Config.STORM_ZOOKEEPER_PORT));
+        ZKhandle.newClient(zkServer.get(0).toString(),port,6000,6000,1000,3);
+        if (!ZKhandle.clientIsStart()) {
+            ZKhandle.start();
+        }
+        NodeCache nodeCache = ZKhandle.createNodeCache("/resource/request");
+        nodeCache.getListenable().addListener(new NodeCacheListener() {
+
+            public void nodeChanged() throws Exception {
+
+                int supervisor = Integer.valueOf(new String(nodeCache.getCurrentData().getData()));
+                LOG.info("/resource/request change! and num of change is:"+supervisor);
+                if (supervisor > 0) {
+                    master.addSupervisors(supervisor);
+                } else {
+                    String[] nodes = ZKhandle.getNeedRemoveSupervisor(supervisor);
+                    for (int i=0; i<nodes.length; i++) {
+                        master.removeSupervisors(nodes[i]);
+                    }
+                }
+                ZKhandle.sentResourceResponse(1);
+            }
+        }, ZKhandle.EXECUTOR_SERVICE);
     }
 
     public void stop() {

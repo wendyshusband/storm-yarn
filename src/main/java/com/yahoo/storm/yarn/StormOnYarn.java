@@ -223,7 +223,7 @@ public class StormOnYarn {
         LOG.info("YARN CLASSPATH = [" + yarn_class_path + "]");
         proc.waitFor();
         reader.close();
-        Apps.addToEnvironment(env, Environment.CLASSPATH.name(), yarn_class_path);
+        //Apps.addToEnvironment(env, Environment.CLASSPATH.name(), yarn_class_path);
         Apps.addToEnvironment(env, Environment.CLASSPATH.name(), yarn_class_path,":");
         String stormHomeInZip = Util.getStormHomeInZip(fs, zip, stormVersion.version());
         Apps.addToEnvironment(env, Environment.CLASSPATH.name(), "./storm/" + stormHomeInZip + "/*",":");
@@ -236,6 +236,12 @@ public class StormOnYarn {
         if (java_home != null && !java_home.isEmpty())
             env.put("JAVA_HOME", java_home);
         LOG.info("Using JAVA_HOME = [" + env.get("JAVA_HOME") + "]");
+
+        //tkl  for docker
+        String docker_image = (String) _stormConf.get("storm.yarn.docker_image_name");
+        if(docker_image !=null && !docker_image.isEmpty()){
+            env.put("yarn.nodemanager.docker-container-executor.image-name",docker_image);
+        }
 
         env.put("appJar", appMasterJar);
         env.put("appName", appName);
