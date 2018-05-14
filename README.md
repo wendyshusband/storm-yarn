@@ -146,11 +146,11 @@ So far, the storm-on-yarn has run and you can submit topology.
 
 You can run the following command to submit a topology.
 
-      storm jar ***.jar topologyName <arg> -c nimbus=
+      storm jar ***.jar topologyName <arg> -c nimbus.host=
 
 For example :
         
-      storm jar ~/WordCount2/testWord-1.0-SNAPSHOT.jar storm.topology.WordCountTopology wordcount -c nimbus=192.168.1.25
+      storm jar ~/WordCount2/testWord-1.0-SNAPSHOT.jar storm.topology.WordCountTopology wordcount -c nimbus.host=192.168.1.25
 
 
 ### Other details:
